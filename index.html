@@ -1,553 +1,769 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VFG 1</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+```
+<style>
+    * {
+        box-sizing: border-box;
+    }
 
-        html,
-        body {
-            margin: 0;
-            min-height: 100%;
-        }
+    html,
+    body {
+        margin: 0;
+        min-height: 100%;
+    }
 
-        body {
-            font-family: "Comic Sans MS", cursive;
-            background: white;
-            color: #222;
-        }
+    body {
+        font-family: "Comic Sans MS", cursive;
+        background: white;
+        color: #222;
+    }
 
-        header {
-            position: relative;
-            background: #e00000;
-            color: white;
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+    header {
+        position: relative;
+        background: #e00000;
+        color: white;
+        padding: 15px 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
 
-        h1 {
-            margin: 0;
-            font-size: 32px;
-        }
+    h1 {
+        margin: 0;
+        font-size: 32px;
+    }
 
-        .topbar-buttons {
-            display: flex;
-            gap: 10px;
-        }
+    .topbar-buttons {
+        display: flex;
+        gap: 10px;
+    }
 
-        header button,
-        #cloak-menu button {
-            font-family: "Comic Sans MS", cursive;
-            background: white;
-            color: #e00000;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+    header button,
+    #cloak-menu button {
+        font-family: "Comic Sans MS", cursive;
+        background: white;
+        color: #e00000;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
 
-        header button:hover,
-        #cloak-menu button:hover {
-            background: #eeeeee;
-        }
+    header button:hover,
+    #cloak-menu button:hover {
+        background: #eeeeee;
+    }
 
-        main {
-            max-width: 1100px;
-            margin: 30px auto;
-            padding: 20px;
-        }
+    main {
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: 20px;
+    }
 
-        h2 {
-            text-align: center;
-            color: #e00000;
-            font-size: 28px;
-        }
+    h2 {
+        text-align: center;
+        color: #e00000;
+        font-size: 28px;
+    }
 
-        #search {
-            width: 100%;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            border: 2px solid #e00000;
-            border-radius: 10px;
-            font-family: "Comic Sans MS", cursive;
-            font-size: 16px;
-        }
+    #search {
+        width: 100%;
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        border: 2px solid #e00000;
+        border-radius: 10px;
+        font-family: "Comic Sans MS", cursive;
+        font-size: 16px;
+    }
 
-        #game-library {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-        }
+    #game-library {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 20px;
+    }
 
-        .game {
-            background: #f5f5f5;
-            border: 3px solid #e00000;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.15s;
-        }
+    .game {
+        background: #f5f5f5;
+        border: 3px solid #e00000;
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.15s;
+    }
 
-        .game:hover {
-            transform: scale(1.03);
-        }
+    .game:hover {
+        transform: scale(1.03);
+    }
 
-        .game img,
-        .no-cover {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            display: block;
-        }
+    .game img,
+    .no-cover {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        display: block;
+    }
 
-        .no-cover {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #ddd;
-            color: #e00000;
-            font-size: 18px;
-        }
+    .no-cover {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ddd;
+        color: #e00000;
+        font-size: 18px;
+    }
 
-        .game-name {
-            padding: 12px;
-            text-align: center;
-            font-size: 18px;
-            color: #e00000;
-            min-height: 50px;
-        }
+    .game-name {
+        padding: 12px;
+        text-align: center;
+        font-size: 18px;
+        color: #e00000;
+        min-height: 50px;
+    }
 
+    #player-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    #player-window {
+        width: min(96vw, 1600px);
+        height: min(94vh, 1000px);
+        background: white;
+        border: 4px solid #e00000;
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
+    }
+
+    #player-topbar {
+        flex: 0 0 auto;
+        background: #e00000;
+        color: white;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    #player-title {
+        font-size: 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    #player-buttons {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    #player-buttons button {
+        font-family: "Comic Sans MS", cursive;
+        background: white;
+        color: #e00000;
+        border: none;
+        padding: 7px 12px;
+        border-radius: 7px;
+        cursor: pointer;
+    }
+
+    #game-frame {
+        display: block;
+        width: 100%;
+        height: 100%;
+        flex: 1 1 auto;
+        min-width: 0;
+        min-height: 0;
+        border: none;
+        background: black;
+    }
+
+    #game-frame:fullscreen {
+        width: 100vw;
+        height: 100vh;
+        background: black;
+    }
+
+    #cloak-menu {
+        display: none;
+        position: absolute;
+        right: 25px;
+        top: 65px;
+        background: white;
+        border: 2px solid #e00000;
+        border-radius: 10px;
+        padding: 15px;
+        width: 220px;
+        z-index: 2000;
+    }
+
+    #cloak-menu button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    #customize {
+        display: none;
+        margin-top: 10px;
+    }
+
+    #customize input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 8px;
+        font-family: "Comic Sans MS", cursive;
+    }
+
+    .dark-mode {
+        background: #0d0d0d;
+        color: white;
+    }
+
+    .dark-mode h2 {
+        color: #ff3333;
+    }
+
+    .dark-mode #search {
+        background: #151515;
+        color: white;
+    }
+
+    .dark-mode .game {
+        background: #151515;
+    }
+
+    .dark-mode .game-name {
+        color: #ff3333;
+    }
+
+    .dark-mode header button {
+        background: #0d0d0d;
+        color: white;
+    }
+
+    .dark-mode #cloak-menu {
+        background: #151515;
+        color: white;
+    }
+
+    .dark-mode #player-window {
+        background: #151515;
+    }
+
+    @media (max-width: 600px) {
         #player-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            padding: 5px;
         }
 
         #player-window {
-            width: min(96vw, 1600px);
-            height: min(94vh, 1000px);
-            background: white;
-            border: 4px solid #e00000;
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            min-height: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
         }
 
         #player-topbar {
-            flex: 0 0 auto;
-            background: #e00000;
-            color: white;
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
+            padding: 8px;
         }
 
         #player-title {
-            font-size: 20px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        #player-buttons {
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
+            font-size: 16px;
         }
 
         #player-buttons button {
-            font-family: "Comic Sans MS", cursive;
-            background: white;
-            color: #e00000;
-            border: none;
-            padding: 7px 12px;
-            border-radius: 7px;
-            cursor: pointer;
+            padding: 6px 8px;
         }
+    }
+</style>
+```
 
-        #game-frame {
-            display: block;
-            width: 100%;
-            height: 100%;
-            flex: 1 1 auto;
-            min-width: 0;
-            min-height: 0;
-            border: none;
-            background: black;
-        }
-
-        #game-frame:fullscreen {
-            width: 100vw;
-            height: 100vh;
-            background: black;
-        }
-
-        #cloak-menu {
-            display: none;
-            position: absolute;
-            right: 25px;
-            top: 65px;
-            background: white;
-            border: 2px solid #e00000;
-            border-radius: 10px;
-            padding: 15px;
-            width: 220px;
-            z-index: 2000;
-        }
-
-        #cloak-menu button {
-            width: 100%;
-            margin-bottom: 8px;
-        }
-
-        #customize {
-            display: none;
-            margin-top: 10px;
-        }
-
-        #customize input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 8px;
-            font-family: "Comic Sans MS", cursive;
-        }
-
-        .dark-mode {
-            background: #0d0d0d;
-            color: white;
-        }
-
-        .dark-mode h2 {
-            color: #ff3333;
-        }
-
-        .dark-mode #search {
-            background: #151515;
-            color: white;
-        }
-
-        .dark-mode .game {
-            background: #151515;
-        }
-
-        .dark-mode .game-name {
-            color: #ff3333;
-        }
-
-        .dark-mode header button {
-            background: #0d0d0d;
-            color: white;
-        }
-
-        .dark-mode #cloak-menu {
-            background: #151515;
-            color: white;
-        }
-
-        .dark-mode #player-window {
-            background: #151515;
-        }
-
-        @media (max-width: 600px) {
-            #player-overlay {
-                padding: 5px;
-            }
-
-            #player-window {
-                width: 100%;
-                height: 100%;
-                border-radius: 5px;
-            }
-
-            #player-topbar {
-                padding: 8px;
-            }
-
-            #player-title {
-                font-size: 16px;
-            }
-
-            #player-buttons button {
-                padding: 6px 8px;
-            }
-        }
-    </style>
 </head>
 
 <body>
 
-    <header>
-        <h1>VFG 1</h1>
+```
+<header>
+    <h1>VFG 1</h1>
 
-        <div class="topbar-buttons">
-            <button id="modeButton" onclick="toggleDarkMode()">Dark Mode</button>
-            <button onclick="toggleCloakMenu()">Tab Cloak</button>
-        </div>
-
-        <div id="cloak-menu">
-            <button onclick="aboutBlank()">About:Blank</button>
-            <button onclick="showCustomize()">Customize Tab</button>
-
-            <div id="customize">
-                <input id="tabTitle" placeholder="Tab title">
-                <input id="tabIcon" placeholder="Favicon URL">
-                <button onclick="customizeTab()">Apply</button>
-            </div>
-        </div>
-    </header>
-
-    <main>
-        <h2>Game Library</h2>
-
-        <input
-            type="text"
-            id="search"
-            placeholder="Search games..."
-            oninput="searchGames()"
-        >
-
-        <section id="game-library"></section>
-    </main>
-
-    <div id="player-overlay">
-        <div id="player-window">
-
-            <div id="player-topbar">
-                <div id="player-title">Game</div>
-
-                <div id="player-buttons">
-                    <button onclick="fullscreenGame()">Fullscreen</button>
-                    <button onclick="closeGame()">Close</button>
-                </div>
-            </div>
-
-            <iframe
-                id="game-frame"
-                src=""
-                allow="fullscreen"
-                allowfullscreen>
-            </iframe>
-
-        </div>
+    <div class="topbar-buttons">
+        <button id="modeButton" onclick="toggleDarkMode()">Dark Mode</button>
+        <button onclick="toggleCloakMenu()">Tab Cloak</button>
     </div>
 
-    <script>
-        const savedMode = localStorage.getItem("vfg1-mode");
-        const modeButton = document.getElementById("modeButton");
-        const gameFrame = document.getElementById("game-frame");
+    <div id="cloak-menu">
+        <button onclick="aboutBlank()">About:Blank</button>
+        <button onclick="showCustomize()">Customize Tab</button>
 
-        if (savedMode === "dark") {
-            document.body.classList.add("dark-mode");
+        <div id="customize">
+            <input id="tabTitle" placeholder="Tab title">
+            <input id="tabIcon" placeholder="Favicon URL">
+            <button onclick="customizeTab()">Apply</button>
+        </div>
+    </div>
+</header>
+
+<main>
+    <h2>Game Library</h2>
+
+    <input
+        type="text"
+        id="search"
+        placeholder="Search games..."
+        oninput="searchGames()"
+    >
+
+    <section id="game-library"></section>
+</main>
+
+<div id="player-overlay">
+    <div id="player-window">
+
+        <div id="player-topbar">
+            <div id="player-title">Game</div>
+
+            <div id="player-buttons">
+                <button onclick="fullscreenGame()">Fullscreen</button>
+                <button onclick="closeGame()">Close</button>
+            </div>
+        </div>
+
+        <iframe
+            id="game-frame"
+            src=""
+            allow="fullscreen"
+            allowfullscreen>
+        </iframe>
+
+    </div>
+</div>
+
+<script>
+    const OWNER = "rok64-main";
+    const REPO = "VFG-1";
+    const BRANCH = "main";
+
+    const BASE_PATH = "/VFG-1/";
+
+    const GITHUB_TREE_API =
+        `https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`;
+
+    const ZONES_URL = BASE_PATH + "zones.json";
+
+    const savedMode = localStorage.getItem("vfg1-mode");
+    const modeButton = document.getElementById("modeButton");
+
+    const gameFrame = document.getElementById("game-frame");
+
+    let allGames = [];
+
+    if (savedMode === "dark") {
+        document.body.classList.add("dark-mode");
+        modeButton.textContent = "Light Mode";
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+
+        if (document.body.classList.contains("dark-mode")) {
+            localStorage.setItem("vfg1-mode", "dark");
             modeButton.textContent = "Light Mode";
+        } else {
+            localStorage.setItem("vfg1-mode", "light");
+            modeButton.textContent = "Dark Mode";
+        }
+    }
+
+    function toggleCloakMenu() {
+        const menu = document.getElementById("cloak-menu");
+
+        menu.style.display =
+            menu.style.display === "block" ? "none" : "block";
+    }
+
+    function aboutBlank() {
+        const newTab = window.open("about:blank", "_blank");
+
+        if (!newTab) {
+            alert("Please allow pop-ups for VFG 1.");
+            return;
         }
 
-        function toggleDarkMode() {
-            document.body.classList.toggle("dark-mode");
+        newTab.document.open();
+        newTab.document.write(document.documentElement.outerHTML);
+        newTab.document.close();
+    }
 
-            if (document.body.classList.contains("dark-mode")) {
-                localStorage.setItem("vfg1-mode", "dark");
-                modeButton.textContent = "Light Mode";
-            } else {
-                localStorage.setItem("vfg1-mode", "light");
-                modeButton.textContent = "Dark Mode";
-            }
+    function showCustomize() {
+        const customize = document.getElementById("customize");
+
+        customize.style.display =
+            customize.style.display === "block" ? "none" : "block";
+    }
+
+    function customizeTab() {
+        const title =
+            document.getElementById("tabTitle").value;
+
+        const icon =
+            document.getElementById("tabIcon").value;
+
+        if (title) {
+            document.title = title;
         }
 
-        function toggleCloakMenu() {
-            const menu = document.getElementById("cloak-menu");
+        if (icon) {
+            let favicon =
+                document.querySelector("link[rel='icon']");
 
-            menu.style.display =
-                menu.style.display === "block" ? "none" : "block";
-        }
-
-        function aboutBlank() {
-            const newTab = window.open("about:blank", "_blank");
-
-            if (!newTab) {
-                alert("Please allow pop-ups for VFG 1.");
-                return;
-            }
-
-            newTab.document.open();
-            newTab.document.write(document.documentElement.outerHTML);
-            newTab.document.close();
-        }
-
-        function showCustomize() {
-            const customize = document.getElementById("customize");
-
-            customize.style.display =
-                customize.style.display === "block" ? "none" : "block";
-        }
-
-        function customizeTab() {
-            const title = document.getElementById("tabTitle").value;
-            const icon = document.getElementById("tabIcon").value;
-
-            if (title) {
-                document.title = title;
-            }
-
-            if (icon) {
-                let favicon = document.querySelector("link[rel='icon']");
-
-                if (!favicon) {
-                    favicon = document.createElement("link");
-                    favicon.rel = "icon";
-                    document.head.appendChild(favicon);
-                }
-
-                favicon.href = icon;
-            }
-        }
-
-        async function loadGames() {
-            try {
-                const response = await fetch("/games");
-                const games = await response.json();
-
-                const library = document.getElementById("game-library");
-
-                library.innerHTML = "";
-
-                for (const game of games) {
-                    const gameTitle = game.name;
-
-                    const card = document.createElement("div");
-                    card.className = "game";
-                    card.dataset.name = gameTitle.toLowerCase();
-
-                    if (game.cover) {
-                        const image = document.createElement("img");
-
-                        image.src =
-                            "/covers/" +
-                            encodeURIComponent(game.cover);
-
-                        image.alt = gameTitle;
-
-                        card.appendChild(image);
-                    } else {
-                        const noCover = document.createElement("div");
-
-                        noCover.className = "no-cover";
-                        noCover.textContent = "No Cover";
-
-                        card.appendChild(noCover);
-                    }
-
-                    const name = document.createElement("div");
-
-                    name.className = "game-name";
-                    name.textContent = gameTitle;
-
-                    card.appendChild(name);
-
-                    card.onclick = function() {
-                        openGame(game.file, gameTitle);
-                    };
-
-                    library.appendChild(card);
-                }
-            } catch (error) {
-                console.error("Failed to load games:", error);
-            }
-        }
-
-        function searchGames() {
-            const search = document
-                .getElementById("search")
-                .value
-                .toLowerCase();
-
-            document.querySelectorAll(".game").forEach(game => {
-                game.style.display =
-                    game.dataset.name.includes(search)
-                        ? ""
-                        : "none";
-            });
-        }
-
-        function openGame(file, title) {
-            const overlay =
-                document.getElementById("player-overlay");
-
-            const playerTitle =
-                document.getElementById("player-title");
-
-            playerTitle.textContent = title;
-
-            gameFrame.src =
-                "/games/" +
-                encodeURIComponent(file);
-
-            overlay.style.display = "flex";
-            document.body.style.overflow = "hidden";
-        }
-
-        async function closeGame() {
-            try {
-                if (document.fullscreenElement) {
-                    await document.exitFullscreen();
-                }
-            } catch (error) {
-                console.error("Exit fullscreen failed:", error);
+            if (!favicon) {
+                favicon = document.createElement("link");
+                favicon.rel = "icon";
+                document.head.appendChild(favicon);
             }
 
-            gameFrame.src = "";
+            favicon.href = icon;
+        }
+    }
 
-            const overlay =
-                document.getElementById("player-overlay");
+    function getGameId(filename) {
+        const match = filename.match(/^(\d+)/);
 
-            overlay.style.display = "none";
-            document.body.style.overflow = "";
+        if (!match) {
+            return null;
         }
 
-        async function fullscreenGame() {
-            try {
-                if (document.fullscreenElement) {
-                    await document.exitFullscreen();
-                    return;
-                }
+        return match[1];
+    }
 
-                await gameFrame.requestFullscreen({
-                    navigationUI: "hide"
-                });
-            } catch (error) {
-                console.error("Fullscreen failed:", error);
+    async function getZones() {
+        try {
+            const response = await fetch(
+                ZONES_URL + "?v=" + Date.now()
+            );
+
+            if (!response.ok) {
+                return [];
             }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Could not load zones.json:", error);
+            return [];
         }
+    }
 
-        document.addEventListener("keydown", function(event) {
-            if (event.key === "Escape") {
-                const overlay =
-                    document.getElementById("player-overlay");
-
-                if (overlay.style.display === "flex") {
-                    closeGame();
-                }
+    async function getRepositoryFiles() {
+        const response = await fetch(GITHUB_TREE_API, {
+            headers: {
+                "Accept": "application/vnd.github+json"
             }
         });
 
-        loadGames();
-    </script>
+        if (!response.ok) {
+            throw new Error(
+                "GitHub API error: " + response.status
+            );
+        }
+
+        const data = await response.json();
+
+        if (data.truncated) {
+            throw new Error(
+                "GitHub returned a truncated file list."
+            );
+        }
+
+        return data.tree || [];
+    }
+
+    async function loadGames() {
+        const library =
+            document.getElementById("game-library");
+
+        library.innerHTML = "";
+
+        try {
+            const [tree, zones] = await Promise.all([
+                getRepositoryFiles(),
+                getZones()
+            ]);
+
+            const zoneMap = new Map();
+
+            if (Array.isArray(zones)) {
+                for (const zone of zones) {
+                    if (
+                        zone &&
+                        zone.id !== undefined &&
+                        zone.id !== null
+                    ) {
+                        zoneMap.set(
+                            String(zone.id),
+                            zone
+                        );
+                    }
+                }
+            }
+
+            const gameFiles = tree
+                .filter(item => {
+                    return (
+                        item.type === "blob" &&
+                        item.path.startsWith("games/") &&
+                        item.path.toLowerCase().endsWith(".html")
+                    );
+                })
+                .map(item => {
+                    const file =
+                        item.path.substring("games/".length);
+
+                    const id = getGameId(file);
+
+                    return {
+                        file: file,
+                        path: item.path,
+                        id: id
+                    };
+                })
+                .filter(game => game.id !== null);
+
+            allGames = gameFiles.map(game => {
+                const zone =
+                    zoneMap.get(game.id);
+
+                let name = game.file;
+
+                if (
+                    zone &&
+                    typeof zone.name === "string" &&
+                    zone.name.trim()
+                ) {
+                    name = zone.name.trim();
+                }
+
+                return {
+                    file: game.file,
+                    id: game.id,
+                    name: name,
+                    cover: game.id + ".png"
+                };
+            });
+
+            allGames.sort((a, b) => {
+                const aNum = Number(a.id);
+                const bNum = Number(b.id);
+
+                if (
+                    Number.isFinite(aNum) &&
+                    Number.isFinite(bNum)
+                ) {
+                    return aNum - bNum;
+                }
+
+                return a.file.localeCompare(b.file);
+            });
+
+            renderGames(allGames);
+
+        } catch (error) {
+            console.error(error);
+
+            library.innerHTML = `
+                <div style="
+                    grid-column: 1 / -1;
+                    text-align: center;
+                    color: #e00000;
+                    font-size: 20px;
+                    padding: 30px;
+                ">
+                    Could not load games.<br><br>
+                    Check that the GitHub repository is public
+                    and that the games folder exists.
+                </div>
+            `;
+        }
+    }
+
+    function renderGames(games) {
+        const library =
+            document.getElementById("game-library");
+
+        library.innerHTML = "";
+
+        for (const game of games) {
+            const card =
+                document.createElement("div");
+
+            card.className = "game";
+
+            card.dataset.name =
+                game.name.toLowerCase();
+
+            const image =
+                document.createElement("img");
+
+            image.src =
+                BASE_PATH +
+                "covers/" +
+                encodeURIComponent(game.cover);
+
+            image.alt = game.name;
+
+            image.onerror = function() {
+                this.style.display = "none";
+
+                if (
+                    !card.querySelector(".no-cover")
+                ) {
+                    const noCover =
+                        document.createElement("div");
+
+                    noCover.className = "no-cover";
+                    noCover.textContent = "No Cover";
+
+                    card.insertBefore(
+                        noCover,
+                        card.firstChild
+                    );
+                }
+            };
+
+            card.appendChild(image);
+
+            const name =
+                document.createElement("div");
+
+            name.className = "game-name";
+            name.textContent = game.name;
+
+            card.appendChild(name);
+
+            card.onclick = function() {
+                openGame(
+                    game.file,
+                    game.name
+                );
+            };
+
+            library.appendChild(card);
+        }
+    }
+
+    function searchGames() {
+        const search =
+            document
+                .getElementById("search")
+                .value
+                .toLowerCase()
+                .trim();
+
+        const filtered =
+            allGames.filter(game => {
+                return game.name
+                    .toLowerCase()
+                    .includes(search);
+            });
+
+        renderGames(filtered);
+    }
+
+    function openGame(file, title) {
+        const overlay =
+            document.getElementById("player-overlay");
+
+        const playerTitle =
+            document.getElementById("player-title");
+
+        playerTitle.textContent = title;
+
+        gameFrame.src =
+            BASE_PATH +
+            "games/" +
+            encodeURIComponent(file);
+
+        overlay.style.display = "flex";
+
+        document.body.style.overflow = "hidden";
+    }
+
+    async function closeGame() {
+        try {
+            if (document.fullscreenElement) {
+                await document.exitFullscreen();
+            }
+        } catch (error) {
+            console.error(
+                "Could not exit fullscreen:",
+                error
+            );
+        }
+
+        gameFrame.src = "";
+
+        const overlay =
+            document.getElementById("player-overlay");
+
+        overlay.style.display = "none";
+
+        document.body.style.overflow = "";
+    }
+
+    async function fullscreenGame() {
+        try {
+            if (document.fullscreenElement) {
+                await document.exitFullscreen();
+                return;
+            }
+
+            await gameFrame.requestFullscreen({
+                navigationUI: "hide"
+            });
+
+        } catch (error) {
+            console.error(
+                "Fullscreen failed:",
+                error
+            );
+        }
+    }
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+            if (event.key === "Escape") {
+                const overlay =
+                    document.getElementById(
+                        "player-overlay"
+                    );
+
+                if (
+                    overlay.style.display === "flex"
+                ) {
+                    closeGame();
+                }
+            }
+        }
+    );
+
+    loadGames();
+</script>
+```
 
 </body>
 </html>
