@@ -327,17 +327,12 @@
                 <div id="player-title">Game</div>
 
                 <div id="player-buttons">
-                    <button onclick="fullscreenGame()">Fullscreen</button>
+                    <button onclick="toggleFullscreen()">Fullscreen</button>
                     <button onclick="closeGame()">Close</button>
                 </div>
             </div>
 
-            <iframe
-                id="game-frame"
-                src=""
-                allow="fullscreen"
-                allowfullscreen>
-            </iframe>
+            <iframe id="game-frame" allowfullscreen allow="fullscreen"></iframe>
 
         </div>
     </div>
@@ -738,11 +733,18 @@
             document.body.style.overflow = "";
         }
 
-        function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        gameFrame.requestFullscreen();
-    } else {
-        document.exitFullscreen();
+async function toggleFullscreen() {
+    try {
+        if (document.fullscreenElement) {
+            await document.exitFullscreen();
+            return;
+        }
+
+        await gameFrame.requestFullscreen({
+            navigationUI: "hide"
+        });
+    } catch (error) {
+        console.error("Fullscreen failed:", error);
     }
 }
 
