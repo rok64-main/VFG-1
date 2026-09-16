@@ -193,6 +193,12 @@
             background: black;
         }
 
+        #game-frame:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            background: black;
+        }
+
         #cloak-menu {
             display: none;
             position: absolute;
@@ -327,220 +333,221 @@
                 <div id="player-title">Game</div>
 
                 <div id="player-buttons">
-                    <button onclick="toggleFullscreen()">Fullscreen</button>
+                    <button onclick="fullscreenGame()">Fullscreen</button>
                     <button onclick="closeGame()">Close</button>
                 </div>
             </div>
 
             <iframe
-    id="game-frame"
-    src=""
-    allow="fullscreen"
-    allowfullscreen>
-</iframe>
+                id="game-frame"
+                src=""
+                allow="fullscreen"
+                allowfullscreen>
+            </iframe>
 
         </div>
     </div>
 
-   <script>
-    const savedMode = localStorage.getItem("vfg1-mode");
-    const modeButton = document.getElementById("modeButton");
-    const gameFrame = document.getElementById("game-frame");
+    <script>
+        const savedMode = localStorage.getItem("vfg1-mode");
+        const modeButton = document.getElementById("modeButton");
+        const gameFrame = document.getElementById("game-frame");
 
-    if (savedMode === "dark") {
-        document.body.classList.add("dark-mode");
-        modeButton.textContent = "Light Mode";
-    }
-
-    function toggleDarkMode() {
-        document.body.classList.toggle("dark-mode");
-
-        if (document.body.classList.contains("dark-mode")) {
-            localStorage.setItem("vfg1-mode", "dark");
+        if (savedMode === "dark") {
+            document.body.classList.add("dark-mode");
             modeButton.textContent = "Light Mode";
-        } else {
-            localStorage.setItem("vfg1-mode", "light");
-            modeButton.textContent = "Dark Mode";
-        }
-    }
-
-    function toggleCloakMenu() {
-        const menu = document.getElementById("cloak-menu");
-
-        menu.style.display =
-            menu.style.display === "block" ? "none" : "block";
-    }
-
-    function aboutBlank() {
-        const newTab = window.open("about:blank", "_blank");
-
-        if (!newTab) {
-            alert("Please allow pop-ups for VFG 1.");
-            return;
         }
 
-        newTab.document.open();
-        newTab.document.write(document.documentElement.outerHTML);
-        newTab.document.close();
-    }
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
 
-    function showCustomize() {
-        const customize = document.getElementById("customize");
-
-        customize.style.display =
-            customize.style.display === "block" ? "none" : "block";
-    }
-
-    function customizeTab() {
-        const title = document.getElementById("tabTitle").value;
-        const icon = document.getElementById("tabIcon").value;
-
-        if (title) {
-            document.title = title;
-        }
-
-        if (icon) {
-            let favicon = document.querySelector("link[rel='icon']");
-
-            if (!favicon) {
-                favicon = document.createElement("link");
-                favicon.rel = "icon";
-                document.head.appendChild(favicon);
+            if (document.body.classList.contains("dark-mode")) {
+                localStorage.setItem("vfg1-mode", "dark");
+                modeButton.textContent = "Light Mode";
+            } else {
+                localStorage.setItem("vfg1-mode", "light");
+                modeButton.textContent = "Dark Mode";
             }
-
-            favicon.href = icon;
-        }
-    }
-
-    async function loadGames() {
-        try {
-            const response = await fetch("/games");
-            const games = await response.json();
-
-            const library = document.getElementById("game-library");
-
-            library.innerHTML = "";
-
-            for (const game of games) {
-                const gameTitle = game.name;
-
-                const card = document.createElement("div");
-                card.className = "game";
-                card.dataset.name = gameTitle.toLowerCase();
-
-                if (game.cover) {
-                    const image = document.createElement("img");
-
-                    image.src =
-                        "/covers/" +
-                        encodeURIComponent(game.cover);
-
-                    image.alt = gameTitle;
-                    card.appendChild(image);
-                } else {
-                    const noCover = document.createElement("div");
-
-                    noCover.className = "no-cover";
-                    noCover.textContent = "No Cover";
-
-                    card.appendChild(noCover);
-                }
-
-                const name = document.createElement("div");
-
-                name.className = "game-name";
-                name.textContent = gameTitle;
-
-                card.appendChild(name);
-
-                card.onclick = function() {
-                    openGame(game.file, gameTitle);
-                };
-
-                library.appendChild(card);
-            }
-        } catch (error) {
-            console.error("Failed to load games:", error);
-        }
-    }
-
-    function searchGames() {
-        const search = document
-            .getElementById("search")
-            .value
-            .toLowerCase();
-
-        document.querySelectorAll(".game").forEach(game => {
-            game.style.display =
-                game.dataset.name.includes(search)
-                    ? ""
-                    : "none";
-        });
-    }
-
-    function openGame(file, title) {
-        const overlay =
-            document.getElementById("player-overlay");
-
-        const playerTitle =
-            document.getElementById("player-title");
-
-        playerTitle.textContent = title;
-
-        gameFrame.src =
-            "/games/" +
-            encodeURIComponent(file);
-
-        overlay.style.display = "flex";
-        document.body.style.overflow = "hidden";
-    }
-
-    async function closeGame() {
-        try {
-            if (document.fullscreenElement) {
-                await document.exitFullscreen();
-            }
-        } catch (error) {
-            console.error("Exit fullscreen failed:", error);
         }
 
-        gameFrame.src = "";
+        function toggleCloakMenu() {
+            const menu = document.getElementById("cloak-menu");
 
-        const overlay =
-            document.getElementById("player-overlay");
+            menu.style.display =
+                menu.style.display === "block" ? "none" : "block";
+        }
 
-        overlay.style.display = "none";
-        document.body.style.overflow = "";
-    }
+        function aboutBlank() {
+            const newTab = window.open("about:blank", "_blank");
 
-    async function fullscreenGame() {
-        try {
-            if (document.fullscreenElement) {
-                await document.exitFullscreen();
+            if (!newTab) {
+                alert("Please allow pop-ups for VFG 1.");
                 return;
             }
 
-            await gameFrame.requestFullscreen({
-                navigationUI: "hide"
-            });
-        } catch (error) {
-            console.error("Fullscreen failed:", error);
+            newTab.document.open();
+            newTab.document.write(document.documentElement.outerHTML);
+            newTab.document.close();
         }
-    }
 
-    document.addEventListener("keydown", function(event) {
-        if (event.key === "Escape") {
+        function showCustomize() {
+            const customize = document.getElementById("customize");
+
+            customize.style.display =
+                customize.style.display === "block" ? "none" : "block";
+        }
+
+        function customizeTab() {
+            const title = document.getElementById("tabTitle").value;
+            const icon = document.getElementById("tabIcon").value;
+
+            if (title) {
+                document.title = title;
+            }
+
+            if (icon) {
+                let favicon = document.querySelector("link[rel='icon']");
+
+                if (!favicon) {
+                    favicon = document.createElement("link");
+                    favicon.rel = "icon";
+                    document.head.appendChild(favicon);
+                }
+
+                favicon.href = icon;
+            }
+        }
+
+        async function loadGames() {
+            try {
+                const response = await fetch("/games");
+                const games = await response.json();
+
+                const library = document.getElementById("game-library");
+
+                library.innerHTML = "";
+
+                for (const game of games) {
+                    const gameTitle = game.name;
+
+                    const card = document.createElement("div");
+                    card.className = "game";
+                    card.dataset.name = gameTitle.toLowerCase();
+
+                    if (game.cover) {
+                        const image = document.createElement("img");
+
+                        image.src =
+                            "/covers/" +
+                            encodeURIComponent(game.cover);
+
+                        image.alt = gameTitle;
+
+                        card.appendChild(image);
+                    } else {
+                        const noCover = document.createElement("div");
+
+                        noCover.className = "no-cover";
+                        noCover.textContent = "No Cover";
+
+                        card.appendChild(noCover);
+                    }
+
+                    const name = document.createElement("div");
+
+                    name.className = "game-name";
+                    name.textContent = gameTitle;
+
+                    card.appendChild(name);
+
+                    card.onclick = function() {
+                        openGame(game.file, gameTitle);
+                    };
+
+                    library.appendChild(card);
+                }
+            } catch (error) {
+                console.error("Failed to load games:", error);
+            }
+        }
+
+        function searchGames() {
+            const search = document
+                .getElementById("search")
+                .value
+                .toLowerCase();
+
+            document.querySelectorAll(".game").forEach(game => {
+                game.style.display =
+                    game.dataset.name.includes(search)
+                        ? ""
+                        : "none";
+            });
+        }
+
+        function openGame(file, title) {
             const overlay =
                 document.getElementById("player-overlay");
 
-            if (overlay.style.display === "flex") {
-                closeGame();
+            const playerTitle =
+                document.getElementById("player-title");
+
+            playerTitle.textContent = title;
+
+            gameFrame.src =
+                "/games/" +
+                encodeURIComponent(file);
+
+            overlay.style.display = "flex";
+            document.body.style.overflow = "hidden";
+        }
+
+        async function closeGame() {
+            try {
+                if (document.fullscreenElement) {
+                    await document.exitFullscreen();
+                }
+            } catch (error) {
+                console.error("Exit fullscreen failed:", error);
+            }
+
+            gameFrame.src = "";
+
+            const overlay =
+                document.getElementById("player-overlay");
+
+            overlay.style.display = "none";
+            document.body.style.overflow = "";
+        }
+
+        async function fullscreenGame() {
+            try {
+                if (document.fullscreenElement) {
+                    await document.exitFullscreen();
+                    return;
+                }
+
+                await gameFrame.requestFullscreen({
+                    navigationUI: "hide"
+                });
+            } catch (error) {
+                console.error("Fullscreen failed:", error);
             }
         }
-    });
 
-    loadGames();
-</script>
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape") {
+                const overlay =
+                    document.getElementById("player-overlay");
+
+                if (overlay.style.display === "flex") {
+                    closeGame();
+                }
+            }
+        });
+
+        loadGames();
+    </script>
 
 </body>
 </html>
