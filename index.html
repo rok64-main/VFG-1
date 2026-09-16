@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VFG 1</title>
 
-```
 <style>
     * {
         box-sizing: border-box;
@@ -354,23 +353,34 @@
 </div>
 
 <script>
-    const OWNER = "rok64-main";
-    const REPO = "VFG-1";
-    const BRANCH = "main";
+    const GITHUB_USERNAME = "rok64-main";
+    const GITHUB_REPOSITORY = "VFG-1";
+    const GITHUB_BRANCH = "main";
 
-    const BASE_PATH = "/VFG-1/";
+    const SITE_URL =
+        "https://rok64-main.github.io/VFG-1/";
 
-    const GITHUB_TREE_API =
-        `https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`;
+    const API_URL =
+        "https://api.github.com/repos/" +
+        GITHUB_USERNAME +
+        "/" +
+        GITHUB_REPOSITORY +
+        "/git/trees/" +
+        GITHUB_BRANCH +
+        "?recursive=1";
 
-    const ZONES_URL = BASE_PATH + "zones.json";
+    const ZONES_URL = SITE_URL + "zones.json";
 
-    const savedMode = localStorage.getItem("vfg1-mode");
-    const modeButton = document.getElementById("modeButton");
+    const modeButton =
+        document.getElementById("modeButton");
 
-    const gameFrame = document.getElementById("game-frame");
+    const gameFrame =
+        document.getElementById("game-frame");
 
     let allGames = [];
+
+    const savedMode =
+        localStorage.getItem("vfg1-mode");
 
     if (savedMode === "dark") {
         document.body.classList.add("dark-mode");
@@ -380,7 +390,9 @@
     function toggleDarkMode() {
         document.body.classList.toggle("dark-mode");
 
-        if (document.body.classList.contains("dark-mode")) {
+        if (
+            document.body.classList.contains("dark-mode")
+        ) {
             localStorage.setItem("vfg1-mode", "dark");
             modeButton.textContent = "Light Mode";
         } else {
@@ -390,30 +402,41 @@
     }
 
     function toggleCloakMenu() {
-        const menu = document.getElementById("cloak-menu");
+        const menu =
+            document.getElementById("cloak-menu");
 
         menu.style.display =
-            menu.style.display === "block" ? "none" : "block";
+            menu.style.display === "block"
+                ? "none"
+                : "block";
     }
 
     function aboutBlank() {
-        const newTab = window.open("about:blank", "_blank");
+        const newTab =
+            window.open("about:blank", "_blank");
 
         if (!newTab) {
-            alert("Please allow pop-ups for VFG 1.");
+            alert(
+                "Please allow pop-ups for VFG 1."
+            );
             return;
         }
 
         newTab.document.open();
-        newTab.document.write(document.documentElement.outerHTML);
+        newTab.document.write(
+            document.documentElement.outerHTML
+        );
         newTab.document.close();
     }
 
     function showCustomize() {
-        const customize = document.getElementById("customize");
+        const customize =
+            document.getElementById("customize");
 
         customize.style.display =
-            customize.style.display === "block" ? "none" : "block";
+            customize.style.display === "block"
+                ? "none"
+                : "block";
     }
 
     function customizeTab() {
@@ -429,12 +452,19 @@
 
         if (icon) {
             let favicon =
-                document.querySelector("link[rel='icon']");
+                document.querySelector(
+                    "link[rel='icon']"
+                );
 
             if (!favicon) {
-                favicon = document.createElement("link");
+                favicon =
+                    document.createElement("link");
+
                 favicon.rel = "icon";
-                document.head.appendChild(favicon);
+
+                document.head.appendChild(
+                    favicon
+                );
             }
 
             favicon.href = icon;
@@ -442,7 +472,8 @@
     }
 
     function getGameId(filename) {
-        const match = filename.match(/^(\d+)/);
+        const match =
+            filename.match(/^(\d+)/);
 
         if (!match) {
             return null;
@@ -451,37 +482,54 @@
         return match[1];
     }
 
-    async function getZones() {
+    async function loadZones() {
         try {
-            const response = await fetch(
-                ZONES_URL + "?v=" + Date.now()
-            );
+            const response =
+                await fetch(
+                    ZONES_URL +
+                    "?cache=" +
+                    Date.now()
+                );
 
             if (!response.ok) {
                 return [];
             }
 
-            return await response.json();
+            const zones =
+                await response.json();
+
+            return Array.isArray(zones)
+                ? zones
+                : [];
+
         } catch (error) {
-            console.error("Could not load zones.json:", error);
+            console.error(
+                "zones.json error:",
+                error
+            );
+
             return [];
         }
     }
 
-    async function getRepositoryFiles() {
-        const response = await fetch(GITHUB_TREE_API, {
-            headers: {
-                "Accept": "application/vnd.github+json"
-            }
-        });
+    async function loadRepositoryTree() {
+        const response =
+            await fetch(API_URL, {
+                headers: {
+                    "Accept":
+                        "application/vnd.github+json"
+                }
+            });
 
         if (!response.ok) {
             throw new Error(
-                "GitHub API error: " + response.status
+                "GitHub API returned " +
+                response.status
             );
         }
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         if (data.truncated) {
             throw new Error(
@@ -494,95 +542,118 @@
 
     async function loadGames() {
         const library =
-            document.getElementById("game-library");
+            document.getElementById(
+                "game-library"
+            );
 
-        library.innerHTML = "";
+        library.innerHTML = `
+            <div style="
+                grid-column: 1 / -1;
+                text-align: center;
+                color: #e00000;
+                font-size: 20px;
+                padding: 30px;
+            ">
+                Loading games...
+            </div>
+        `;
 
         try {
-            const [tree, zones] = await Promise.all([
-                getRepositoryFiles(),
-                getZones()
-            ]);
+            const results =
+                await Promise.all([
+                    loadRepositoryTree(),
+                    loadZones()
+                ]);
 
-            const zoneMap = new Map();
+            const tree = results[0];
+            const zones = results[1];
 
-            if (Array.isArray(zones)) {
-                for (const zone of zones) {
-                    if (
-                        zone &&
-                        zone.id !== undefined &&
-                        zone.id !== null
-                    ) {
-                        zoneMap.set(
-                            String(zone.id),
-                            zone
-                        );
-                    }
+            const zoneMap =
+                new Map();
+
+            for (const zone of zones) {
+                if (
+                    zone &&
+                    zone.id !== undefined &&
+                    zone.id !== null
+                ) {
+                    zoneMap.set(
+                        String(zone.id),
+                        zone
+                    );
                 }
             }
 
-            const gameFiles = tree
-                .filter(item => {
+            const gameFiles =
+                tree.filter(function(item) {
                     return (
                         item.type === "blob" &&
-                        item.path.startsWith("games/") &&
-                        item.path.toLowerCase().endsWith(".html")
+                        item.path
+                            .toLowerCase()
+                            .startsWith("games/") &&
+                        item.path
+                            .toLowerCase()
+                            .endsWith(".html")
                     );
-                })
-                .map(item => {
-                    const file =
-                        item.path.substring("games/".length);
+                });
 
-                    const id = getGameId(file);
+            allGames =
+                gameFiles
+                    .map(function(item) {
+                        const file =
+                            item.path.substring(
+                                6
+                            );
 
-                    return {
-                        file: file,
-                        path: item.path,
-                        id: id
-                    };
-                })
-                .filter(game => game.id !== null);
+                        const id =
+                            getGameId(file);
 
-            allGames = gameFiles.map(game => {
-                const zone =
-                    zoneMap.get(game.id);
+                        if (id === null) {
+                            return null;
+                        }
 
-                let name = game.file;
+                        const zone =
+                            zoneMap.get(id);
 
-                if (
-                    zone &&
-                    typeof zone.name === "string" &&
-                    zone.name.trim()
-                ) {
-                    name = zone.name.trim();
-                }
+                        let name =
+                            file;
 
-                return {
-                    file: game.file,
-                    id: game.id,
-                    name: name,
-                    cover: game.id + ".png"
-                };
-            });
+                        if (
+                            zone &&
+                            typeof zone.name ===
+                                "string" &&
+                            zone.name.trim()
+                        ) {
+                            name =
+                                zone.name.trim();
+                        }
 
-            allGames.sort((a, b) => {
-                const aNum = Number(a.id);
-                const bNum = Number(b.id);
+                        return {
+                            id: id,
+                            file: file,
+                            name: name,
+                            cover:
+                                id + ".png"
+                        };
+                    })
+                    .filter(function(game) {
+                        return game !== null;
+                    });
 
-                if (
-                    Number.isFinite(aNum) &&
-                    Number.isFinite(bNum)
-                ) {
-                    return aNum - bNum;
-                }
-
-                return a.file.localeCompare(b.file);
+            allGames.sort(function(a, b) {
+                return (
+                    Number(a.id) -
+                    Number(b.id)
+                );
             });
 
             renderGames(allGames);
 
         } catch (error) {
-            console.error(error);
+            console.error(
+                "Game loading failed:",
+                error
+            );
 
             library.innerHTML = `
                 <div style="
@@ -592,9 +663,10 @@
                     font-size: 20px;
                     padding: 30px;
                 ">
-                    Could not load games.<br><br>
-                    Check that the GitHub repository is public
-                    and that the games folder exists.
+                    Games could not be loaded.
+                    <br><br>
+                    Make sure the repository is public
+                    and GitHub Pages is enabled.
                 </div>
             `;
         }
@@ -602,7 +674,9 @@
 
     function renderGames(games) {
         const library =
-            document.getElementById("game-library");
+            document.getElementById(
+                "game-library"
+            );
 
         library.innerHTML = "";
 
@@ -619,47 +693,63 @@
                 document.createElement("img");
 
             image.src =
-                BASE_PATH +
+                SITE_URL +
                 "covers/" +
-                encodeURIComponent(game.cover);
+                encodeURIComponent(
+                    game.cover
+                );
 
-            image.alt = game.name;
+            image.alt =
+                game.name;
 
-            image.onerror = function() {
-                this.style.display = "none";
+            image.onerror =
+                function() {
+                    image.style.display =
+                        "none";
 
-                if (
-                    !card.querySelector(".no-cover")
-                ) {
-                    const noCover =
-                        document.createElement("div");
+                    if (
+                        !card.querySelector(
+                            ".no-cover"
+                        )
+                    ) {
+                        const noCover =
+                            document.createElement(
+                                "div"
+                            );
 
-                    noCover.className = "no-cover";
-                    noCover.textContent = "No Cover";
+                        noCover.className =
+                            "no-cover";
 
-                    card.insertBefore(
-                        noCover,
-                        card.firstChild
-                    );
-                }
-            };
+                        noCover.textContent =
+                            "No Cover";
+
+                        card.insertBefore(
+                            noCover,
+                            card.firstChild
+                        );
+                    }
+                };
 
             card.appendChild(image);
 
             const name =
                 document.createElement("div");
 
-            name.className = "game-name";
-            name.textContent = game.name;
+            name.className =
+                "game-name";
+
+            name.textContent =
+                game.name;
 
             card.appendChild(name);
 
-            card.onclick = function() {
-                openGame(
-                    game.file,
-                    game.name
-                );
-            };
+            card.onclick =
+                function() {
+                    openGame(
+                        game.file,
+                        game.name
+                    );
+                };
 
             library.appendChild(card);
         }
@@ -674,59 +764,48 @@
                 .trim();
 
         const filtered =
-            allGames.filter(game => {
-                return game.name
-                    .toLowerCase()
-                    .includes(search);
-            });
+            allGames.filter(
+                function(game) {
+                    return game.name
+                        .toLowerCase()
+                        .includes(search);
+                }
+            );
 
         renderGames(filtered);
     }
 
     function openGame(file, title) {
         const overlay =
-            document.getElementById("player-overlay");
+            document.getElementById(
+                "player-overlay"
+            );
 
         const playerTitle =
-            document.getElementById("player-title");
+            document.getElementById(
+                "player-title"
+            );
 
-        playerTitle.textContent = title;
+        playerTitle.textContent =
+            title;
 
         gameFrame.src =
-            BASE_PATH +
+            SITE_URL +
             "games/" +
             encodeURIComponent(file);
 
-        overlay.style.display = "flex";
+        overlay.style.display =
+            "flex";
 
-        document.body.style.overflow = "hidden";
-    }
-
-    async function closeGame() {
-        try {
-            if (document.fullscreenElement) {
-                await document.exitFullscreen();
-            }
-        } catch (error) {
-            console.error(
-                "Could not exit fullscreen:",
-                error
-            );
-        }
-
-        gameFrame.src = "";
-
-        const overlay =
-            document.getElementById("player-overlay");
-
-        overlay.style.display = "none";
-
-        document.body.style.overflow = "";
+        document.body.style.overflow =
+            "hidden";
     }
 
     async function fullscreenGame() {
         try {
-            if (document.fullscreenElement) {
+            if (
+                document.fullscreenElement
+            ) {
                 await document.exitFullscreen();
                 return;
             }
@@ -743,17 +822,44 @@
         }
     }
 
+    async function closeGame() {
+        try {
+            if (
+                document.fullscreenElement
+            ) {
+                await document.exitFullscreen();
+            }
+        } catch (error) {
+            console.error(
+                "Exit fullscreen failed:",
+                error
+            );
+        }
+
+        gameFrame.src = "";
+
+        document.getElementById(
+            "player-overlay"
+        ).style.display = "none";
+
+        document.body.style.overflow =
+            "";
+    }
+
     document.addEventListener(
         "keydown",
         function(event) {
-            if (event.key === "Escape") {
+            if (
+                event.key === "Escape"
+            ) {
                 const overlay =
                     document.getElementById(
                         "player-overlay"
                     );
 
                 if (
-                    overlay.style.display === "flex"
+                    overlay.style.display ===
+                    "flex"
                 ) {
                     closeGame();
                 }
@@ -763,7 +869,6 @@
 
     loadGames();
 </script>
-```
 
 </body>
 </html>
