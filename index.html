@@ -332,443 +332,215 @@
                 </div>
             </div>
 
-            <iframe id="game-frame" allowfullscreen allow="fullscreen"></iframe>
+            <iframe
+    id="game-frame"
+    src=""
+    allow="fullscreen"
+    allowfullscreen>
+</iframe>
 
         </div>
     </div>
 
-    <script>
-        const savedMode = localStorage.getItem("vfg1-mode");
-        const modeButton = document.getElementById("modeButton");
+   <script>
+    const savedMode = localStorage.getItem("vfg1-mode");
+    const modeButton = document.getElementById("modeButton");
+    const gameFrame = document.getElementById("game-frame");
 
-        if (savedMode === "dark") {
-            document.body.classList.add("dark-mode");
+    if (savedMode === "dark") {
+        document.body.classList.add("dark-mode");
+        modeButton.textContent = "Light Mode";
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+
+        if (document.body.classList.contains("dark-mode")) {
+            localStorage.setItem("vfg1-mode", "dark");
             modeButton.textContent = "Light Mode";
+        } else {
+            localStorage.setItem("vfg1-mode", "light");
+            modeButton.textContent = "Dark Mode";
         }
+    }
 
-        function getRepositoryInfo() {
-            const host = location.hostname;
+    function toggleCloakMenu() {
+        const menu = document.getElementById("cloak-menu");
 
-            if (!host.endsWith(".github.io")) {
-                return null;
-            }
+        menu.style.display =
+            menu.style.display === "block" ? "none" : "block";
+    }
 
-            const owner = host.split(".")[0];
+    function aboutBlank() {
+        const newTab = window.open("about:blank", "_blank");
 
-            const parts = location.pathname
-                .split("/")
-                .filter(Boolean);
-
-            const repo = parts.length > 0
-                ? parts[0]
-                : owner + ".github.io";
-
-            return {
-                owner: owner,
-                repo: repo
-            };
-        }
-
-        async function getGamesFromGitHub() {
-            const repoInfo = getRepositoryInfo();
-
-            if (!repoInfo) {
-                throw new Error(
-                    "VFG 1 must be running on GitHub Pages."
-                );
-            }
-
-            const apiURL =
-                "https://api.github.com/repos/" +
-                encodeURIComponent(repoInfo.owner) +
-                "/" +
-                encodeURIComponent(repoInfo.repo) +
-                "/contents/games";
-
-            const response = await fetch(apiURL);
-
-            if (!response.ok) {
-                throw new Error(
-                    "Could not access the games folder."
-                );
-            }
-
-            const files = await response.json();
-
-            return files.filter(file =>
-                file.type === "file" &&
-                file.name.toLowerCase().endsWith(".html")
-            );
-        }
-
-        async function getZones() {
-            const response = await fetch("zones.json");
-
-            if (!response.ok) {
-                throw new Error("Could not load zones.json.");
-            }
-
-            return await response.json();
-        }
-
-        function getGameId(filename) {
-            const match = filename.match(/^(\d+)/);
-
-            if (match) {
-                return match[1];
-            }
-
-            return null;
-        }
-
-        function getCover(gameId) {
-            if (!gameId) {
-                return null;
-            }
-
-            return "covers/" + gameId + ".png";
-        }
-
-        async function loadGames() {
-            const library =
-                document.getElementById("game-library");
-
-            library.innerHTML =
-                "<h2>Loading games...</h2>";
-
-            try {
-                const files = await getGamesFromGitHub();
-                const zones = await getZones();
-
-                const zoneData = {};
-
-                zones.forEach(game => {
-                    if (!game) {
-                        return;
-                    }
-
-                    const id = String(game.id);
-
-                    zoneData[id] = game;
-                });
-
-                library.innerHTML = "";
-
-                for (const file of files) {
-                    const filename = file.name;
-
-                    const gameId =
-                        getGameId(filename);
-
-                    const info =
-                        gameId !== null
-                            ? zoneData[gameId]
-                            : null;
-
-                    let gameTitle;
-
-                    if (info && info.name) {
-                        gameTitle = info.name;
-                    } else {
-                        gameTitle =
-                            filename.replace(
-                                /\.html$/i,
-                                ""
-                            );
-                    }
-
-                    const card =
-                        document.createElement("div");
-
-                    card.className = "game";
-
-                    card.dataset.name =
-                        gameTitle.toLowerCase();
-
-                    const cover =
-                        getCover(gameId);
-
-                    if (cover) {
-                        const image =
-                            document.createElement("img");
-
-                        image.src = cover;
-                        image.alt = gameTitle;
-
-                        image.onerror = function() {
-                            this.style.display = "none";
-                        };
-
-                        card.appendChild(image);
-                    } else {
-                        const noCover =
-                            document.createElement("div");
-
-                        noCover.className = "no-cover";
-                        noCover.textContent = "No Cover";
-
-                        card.appendChild(noCover);
-                    }
-
-                    const name =
-                        document.createElement("div");
-
-                    name.className = "game-name";
-                    name.textContent = gameTitle;
-
-                    card.appendChild(name);
-
-                    card.onclick = function() {
-                        openGame(
-                            filename,
-                            gameTitle
-                        );
-                    };
-
-                    library.appendChild(card);
-                }
-
-                if (files.length === 0) {
-                    library.innerHTML =
-                        "<h2>No games found.</h2>";
-                }
-
-            } catch (error) {
-                library.innerHTML =
-                    "<h2>Could not load games.</h2>" +
-                    "<p style='text-align:center;'>" +
-                    error.message +
-                    "</p>";
-            }
-        }
-
-        function searchGames() {
-            const search =
-                document
-                    .getElementById("search")
-                    .value
-                    .toLowerCase();
-
-            document
-                .querySelectorAll(".game")
-                .forEach(game => {
-                    game.style.display =
-                        game.dataset.name.includes(search)
-                            ? ""
-                            : "none";
-                });
-        }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle("dark-mode");
-
-            if (
-                document.body.classList.contains(
-                    "dark-mode"
-                )
-            ) {
-                localStorage.setItem(
-                    "vfg1-mode",
-                    "dark"
-                );
-
-                modeButton.textContent =
-                    "Light Mode";
-            } else {
-                localStorage.setItem(
-                    "vfg1-mode",
-                    "light"
-                );
-
-                modeButton.textContent =
-                    "Dark Mode";
-            }
-        }
-
-        function toggleCloakMenu() {
-            const menu =
-                document.getElementById(
-                    "cloak-menu"
-                );
-
-            menu.style.display =
-                menu.style.display === "block"
-                    ? "none"
-                    : "block";
-        }
-
-        function aboutBlank() {
-            const newTab =
-                window.open(
-                    "about:blank",
-                    "_blank"
-                );
-
-            if (!newTab) {
-                alert(
-                    "Please allow pop-ups for VFG 1."
-                );
-
-                return;
-            }
-
-            const base =
-                document.createElement("base");
-
-            base.href =
-                location.href.substring(
-                    0,
-                    location.href.lastIndexOf("/") + 1
-                );
-
-            const page =
-                document.documentElement.outerHTML;
-
-            newTab.document.open();
-
-            newTab.document.write(
-                page.replace(
-                    "<head>",
-                    "<head>" +
-                    base.outerHTML
-                )
-            );
-
-            newTab.document.close();
-        }
-
-        function showCustomize() {
-            const customize =
-                document.getElementById(
-                    "customize"
-                );
-
-            customize.style.display =
-                customize.style.display === "block"
-                    ? "none"
-                    : "block";
-        }
-
-        function customizeTab() {
-            const title =
-                document.getElementById(
-                    "tabTitle"
-                ).value;
-
-            const icon =
-                document.getElementById(
-                    "tabIcon"
-                ).value;
-
-            if (title) {
-                document.title = title;
-            }
-
-            if (icon) {
-                let favicon =
-                    document.querySelector(
-                        "link[rel='icon']"
-                    );
-
-                if (!favicon) {
-                    favicon =
-                        document.createElement(
-                            "link"
-                        );
-
-                    favicon.rel = "icon";
-
-                    document.head.appendChild(
-                        favicon
-                    );
-                }
-
-                favicon.href = icon;
-            }
-        }
-
-        function openGame(file, title) {
-            const overlay =
-                document.getElementById(
-                    "player-overlay"
-                );
-
-            const frame =
-                document.getElementById(
-                    "game-frame"
-                );
-
-            const playerTitle =
-                document.getElementById(
-                    "player-title"
-                );
-
-            playerTitle.textContent = title;
-
-            frame.src =
-                "games/" +
-                encodeURIComponent(file);
-
-            overlay.style.display = "flex";
-
-            document.body.style.overflow =
-                "hidden";
-        }
-
-        function closeGame() {
-            const overlay =
-                document.getElementById(
-                    "player-overlay"
-                );
-
-            const frame =
-                document.getElementById(
-                    "game-frame"
-                );
-
-            frame.src = "";
-
-            overlay.style.display = "none";
-
-            document.body.style.overflow = "";
-        }
-
-async function toggleFullscreen() {
-    try {
-        if (document.fullscreenElement) {
-            await document.exitFullscreen();
+        if (!newTab) {
+            alert("Please allow pop-ups for VFG 1.");
             return;
         }
 
-        await gameFrame.requestFullscreen({
-            navigationUI: "hide"
-        });
-    } catch (error) {
-        console.error("Fullscreen failed:", error);
+        newTab.document.open();
+        newTab.document.write(document.documentElement.outerHTML);
+        newTab.document.close();
     }
-}
 
-        document.addEventListener(
-            "keydown",
-            function(event) {
-                if (event.key === "Escape") {
-                    const overlay =
-                        document.getElementById(
-                            "player-overlay"
-                        );
+    function showCustomize() {
+        const customize = document.getElementById("customize");
 
-                    if (
-                        overlay.style.display ===
-                        "flex"
-                    ) {
-                        closeGame();
-                    }
-                }
+        customize.style.display =
+            customize.style.display === "block" ? "none" : "block";
+    }
+
+    function customizeTab() {
+        const title = document.getElementById("tabTitle").value;
+        const icon = document.getElementById("tabIcon").value;
+
+        if (title) {
+            document.title = title;
+        }
+
+        if (icon) {
+            let favicon = document.querySelector("link[rel='icon']");
+
+            if (!favicon) {
+                favicon = document.createElement("link");
+                favicon.rel = "icon";
+                document.head.appendChild(favicon);
             }
-        );
 
-        loadGames();
-    </script>
+            favicon.href = icon;
+        }
+    }
+
+    async function loadGames() {
+        try {
+            const response = await fetch("/games");
+            const games = await response.json();
+
+            const library = document.getElementById("game-library");
+
+            library.innerHTML = "";
+
+            for (const game of games) {
+                const gameTitle = game.name;
+
+                const card = document.createElement("div");
+                card.className = "game";
+                card.dataset.name = gameTitle.toLowerCase();
+
+                if (game.cover) {
+                    const image = document.createElement("img");
+
+                    image.src =
+                        "/covers/" +
+                        encodeURIComponent(game.cover);
+
+                    image.alt = gameTitle;
+                    card.appendChild(image);
+                } else {
+                    const noCover = document.createElement("div");
+
+                    noCover.className = "no-cover";
+                    noCover.textContent = "No Cover";
+
+                    card.appendChild(noCover);
+                }
+
+                const name = document.createElement("div");
+
+                name.className = "game-name";
+                name.textContent = gameTitle;
+
+                card.appendChild(name);
+
+                card.onclick = function() {
+                    openGame(game.file, gameTitle);
+                };
+
+                library.appendChild(card);
+            }
+        } catch (error) {
+            console.error("Failed to load games:", error);
+        }
+    }
+
+    function searchGames() {
+        const search = document
+            .getElementById("search")
+            .value
+            .toLowerCase();
+
+        document.querySelectorAll(".game").forEach(game => {
+            game.style.display =
+                game.dataset.name.includes(search)
+                    ? ""
+                    : "none";
+        });
+    }
+
+    function openGame(file, title) {
+        const overlay =
+            document.getElementById("player-overlay");
+
+        const playerTitle =
+            document.getElementById("player-title");
+
+        playerTitle.textContent = title;
+
+        gameFrame.src =
+            "/games/" +
+            encodeURIComponent(file);
+
+        overlay.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    async function closeGame() {
+        try {
+            if (document.fullscreenElement) {
+                await document.exitFullscreen();
+            }
+        } catch (error) {
+            console.error("Exit fullscreen failed:", error);
+        }
+
+        gameFrame.src = "";
+
+        const overlay =
+            document.getElementById("player-overlay");
+
+        overlay.style.display = "none";
+        document.body.style.overflow = "";
+    }
+
+    async function fullscreenGame() {
+        try {
+            if (document.fullscreenElement) {
+                await document.exitFullscreen();
+                return;
+            }
+
+            await gameFrame.requestFullscreen({
+                navigationUI: "hide"
+            });
+        } catch (error) {
+            console.error("Fullscreen failed:", error);
+        }
+    }
+
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+            const overlay =
+                document.getElementById("player-overlay");
+
+            if (overlay.style.display === "flex") {
+                closeGame();
+            }
+        }
+    });
+
+    loadGames();
+</script>
 
 </body>
 </html>
