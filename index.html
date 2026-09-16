@@ -738,21 +738,13 @@
             document.body.style.overflow = "";
         }
 
-        function fullscreenGame() {
-            const player =
-                document.getElementById(
-                    "player-window"
-                );
-
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-                return;
-            }
-
-            if (player.requestFullscreen) {
-                player.requestFullscreen();
-            }
-        }
+        function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        gameFrame.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+}
 
         document.addEventListener(
             "keydown",
