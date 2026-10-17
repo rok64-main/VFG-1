@@ -352,27 +352,11 @@
         }
 
         function getRepositoryInfo() {
-            const host = location.hostname;
-
-            if (!host.endsWith(".github.io")) {
-                return null;
-            }
-
-            const owner = host.split(".")[0];
-
-            const parts = location.pathname
-                .split("/")
-                .filter(Boolean);
-
-            const repo = parts.length > 0
-                ? parts[0]
-                : owner + ".github.io";
-
-            return {
-                owner: owner,
-                repo: repo
-            };
-        }
+    return {
+        owner: "rok64-main",
+        repo: "VFG-1"
+    };
+}
 
         async function getGamesFromGitHub() {
             const repoInfo = getRepositoryInfo();
