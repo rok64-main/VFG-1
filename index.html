@@ -391,7 +391,7 @@
         }
 
         async function getZones() {
-            const response = await fetch('/zones.json')
+            const response = await fetch('zones.json')
 
             if (!response.ok) {
                 throw new Error("Could not load zones.json.");
