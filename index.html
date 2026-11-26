@@ -723,20 +723,14 @@
         }
 
         function fullscreenGame() {
-            const player =
-                document.getElementById(
-                    "player-window"
-                );
+    const frame = document.getElementById("game-frame");
 
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-                return;
-            }
-
-            if (player.requestFullscreen) {
-                player.requestFullscreen();
-            }
-        }
+    if (frame.requestFullscreen) {
+        frame.requestFullscreen();
+    } else if (frame.webkitRequestFullscreen) {
+        frame.webkitRequestFullscreen();
+    }
+}
 
         document.addEventListener(
             "keydown",
